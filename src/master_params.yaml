@@ -42,6 +42,7 @@ stoch_flag: [1, int]
 thermo_flag: [0, int]
 n_thermo: [1000, int]
 interaction_flag: [1, int]
+time_avg_steps: [1000, int] # number of steps to use for time averaging statistics
 species:
   num: [0, int]
   insertion_type: [random, string]
@@ -77,7 +78,8 @@ filament:
   v_poly : [0.44,double]
   v_depoly : [0.793,double]
   theta_analysis: [0, int]
-  lp_analysis: [0,int]
+  mse2e_analysis: [0,int]
+  diffusion_analysis: [0,int]
 hard_rod:
   diameter: [1, double]
   length: [40, double]

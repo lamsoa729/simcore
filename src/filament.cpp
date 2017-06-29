@@ -850,16 +850,17 @@ void Filament::ReadSpec(std::fstream &ispec) {
 }
 
 void Filament::WritePosit(std::fstream &oposit) {
-  double avg_pos[3], avg_u[3];
-  GetAvgPosition(avg_pos);
-  GetAvgOrientation(avg_u);
-  std::copy(avg_pos,avg_pos+3,position_);
+  // Average positions are already updated at each time step
+  //double avg_pos[3], avg_u[3];
+  //GetAvgPosition(avg_pos);
+  //GetAvgOrientation(avg_u);
+  //std::copy(avg_pos,avg_pos+3,position_);
   UpdatePeriodic();
   for (auto& pos : position_)
     oposit.write(reinterpret_cast<char*>(&pos), sizeof(pos));
   for (auto& spos : scaled_position_)
     oposit.write(reinterpret_cast<char*>(&spos), sizeof(spos));
-  for (auto& u : avg_u) 
+  for (auto& u : orientation_) 
     oposit.write(reinterpret_cast<char*>(&u), sizeof(u));
   oposit.write(reinterpret_cast<char*>(&diameter_), sizeof(diameter_));
   oposit.write(reinterpret_cast<char*>(&length_), sizeof(length_));
@@ -870,10 +871,12 @@ void Filament::ReadPosit(std::fstream &iposit) {
   double avg_pos[3], avg_u[3], s_pos[3];
   for (int i=0; i<3; ++i)
     iposit.read(reinterpret_cast<char*>(&avg_pos[i]), sizeof(double));
+  std::copy(avg_pos,avg_pos+3,position_);
   for (int i=0; i<3; ++i)
     iposit.read(reinterpret_cast<char*>(&s_pos[i]), sizeof(double));
   for (int i=0; i<3; ++i)
     iposit.read(reinterpret_cast<char*>(&avg_u[i]), sizeof(double));
+  std::copy(avg_u, avg_u+3, orientation_);
   iposit.read(reinterpret_cast<char*>(&diameter_), sizeof(diameter_));
   iposit.read(reinterpret_cast<char*>(&length_), sizeof(length_));
   // Initialize first bond position
@@ -1012,6 +1015,24 @@ void FilamentSpecies::InitSpiralAnalysis() {
   spiral_file_ << "time angle_sum E_bend tip_z_proj head_pos_x head_pos_y tail_pos_x tail_pos_y\n";
 }
 
+void FilamentSpecies::InitDiffusionAnalysis() {
+  std::string fname = params_->run_name;
+  fname.append("_filament.diffusion");
+  spiral_file_.open(fname, std::ios::out);
+  spiral_file_ << "spiral_analysis_file\n";
+  spiral_file_ << "length diameter child_length persistence_length driving nsteps nspec delta\n";
+  for (auto it=members_.begin(); it!=members_.end(); ++it) {
+    double l = (*it)->GetLength();
+    double d = (*it)->GetDiameter();
+    double cl = (*it)->GetChildLength();
+    double pl = (*it)->GetPersistenceLength();
+    double dr = (*it)->GetDriving();
+    double nspec = GetNSpec();
+    spiral_file_ << l << " " << d << " " << cl << " " << pl << " " << dr << " " << params_->n_steps << " " << nspec << " " << params_->delta << "\n";
+  }
+  spiral_file_ << "msd msd_err vcf vcf_err\n";
+}
+
 void FilamentSpecies::InitThetaAnalysis() {
   // TODO Should check to make sure the same lengths, child lengths, persistence lengths, etc are used for each filament in system.
   std::string fname = params_->run_name;
@@ -1136,6 +1157,25 @@ void FilamentSpecies::RunThetaAnalysis() {
       theta_histogram_[i][bin_number]++;
     }
   }
+}
+
+void FilamentSpecies::RunDiffusionAnalysis() {
+  for (auto it=members_.begin(); it!= members_.end(); ++it) {
+    double const * const pos = (*it)->GetPosition();
+    double const * const u = (*it)->GetOrientaiton();
+    double mse2e_temp = 0.0;
+    for (int i=0; i<params_->n_dim; ++i) {
+      double temp = (head_pos[i] - tail_pos[i]);
+      mse2e_temp += temp*temp;
+    }
+    mse2e_ += mse2e_temp;
+    mse2e2_ += mse2e_temp*mse2e_temp;
+    //mse2e_file_ << " " << mse2e ;
+  }
+  //mse2e_ /= members_.size();
+  //mse2e2_ /= members_.size();
+  //mse2e_file_ << "\n";
+  n_samples_++;
 }
 
 void FilamentSpecies::FinalizeAnalysis() {

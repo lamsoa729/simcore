@@ -16,7 +16,13 @@ bin
 obj
 *.posit
 *.diffusion
+*.spiral
+*.theta
+*.mse2e
+*.spec
+*.checkpoint
 *.filament
+*.thermo
 *_params.yaml
 *.log
 sc-*
