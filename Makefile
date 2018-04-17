@@ -9,7 +9,7 @@ SRCEXT = cpp
 COMPILE_FLAGS = -std=c++11 
 RCOMPILE_FLAGS = -D NDEBUG -O2 -march=native
 DCOMPILE_FLAGS = -D DEBUG -O0 -g
-#LINK_FLAGS = -gnu 
+LINK_FLAGS = -gnu 
 
 ifeq ($(THREADING),eomp)
 	COMPILE_FLAGS += -fopenmp
@@ -32,10 +32,10 @@ ifeq ($(UNAME_S),Darwin)
 	YAMLLIBS = -L/usr/local/lib -lyaml-cpp
 	LIBS = $(GLXLIBS) $(GSLLIBS) $(FFTLIBS) $(YAMLLIBS)
 else
-	GSLINCS = -I/usr/local/include
-	GSLLIBS = -L/usr/local/lib -lgsl -lgslcblas -lm
-	YAMLINCS = -I/usr/local/include
-	YAMLLIBS = -L/usr/local/lib -lyaml-cpp
+	GSLINCS = -I/build/gsl/include
+	GSLLIBS = -static -L/build/gsl/lib -lgsl -lgslcblas -lm
+	YAMLINCS = -I/build/yaml-cpp/include
+	YAMLLIBS = -L/build/yaml-cpp/lib -lyaml-cpp
 	INCLUDES = $(GLFW3INCS) $(YAMLINCS) $(GSLINCS)
 	LIBS = $(GLFW3LIBS) $(YAMLLIBS) $(GSLLIBS)
 endif

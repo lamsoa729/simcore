@@ -6,7 +6,7 @@ n_runs: 1
 
 # time options
 delta: 0.0001
-n_steps: 10000000
+n_steps: 10000
 n_steps_equil: 0
 
 # space options
@@ -40,7 +40,7 @@ checkpoint_from_spec: 0
 
 # model options
 filament:
-  num: 100
+  num: 1
   insertion_type: random_nematic
   packing_fraction: -1
   overlap: 1
