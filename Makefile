@@ -32,12 +32,14 @@ ifeq ($(UNAME_S),Darwin)
 	YAMLLIBS = -L/usr/local/lib -lyaml-cpp
 	LIBS = $(GLXLIBS) $(GSLLIBS) $(FFTLIBS) $(YAMLLIBS)
 else
-	GSLINCS = -I/build/gsl/include
-	GSLLIBS = -static -L/build/gsl/lib -lgsl -lgslcblas -lm
+	GSLINCS = -I/build/gsl/include -I/usr/include
+	GSLLIBS = -L/build/gsl/lib -lgsl -lgslcblas -lm
+	GLXINCS = -I/usr/local/include -I/usr/include/GL -I/usr/include/libdrm
+	GLXLIBS = -L/opt/X11/lib -L/usr/local/lib -L/usr/lib -lGLEW -lGLU -lGL -lglfw3 -lX11-xcb -lX11 -lxcb -lXext -lXdmcp -lXau -lpthread -lstdc++ -Wl,--no-as-needed -ldl
 	YAMLINCS = -I/build/yaml-cpp/include
 	YAMLLIBS = -L/build/yaml-cpp/lib -lyaml-cpp
-	INCLUDES = $(GLFW3INCS) $(YAMLINCS) $(GSLINCS)
-	LIBS = $(GLFW3LIBS) $(YAMLLIBS) $(GSLLIBS)
+	INCLUDES = $(GLXINCS) $(YAMLINCS) $(GSLINCS)
+	LIBS = $(GLXLIBS) $(YAMLLIBS) $(GSLLIBS)
 endif
 
 print-%: ; @echo $*=$($*)
