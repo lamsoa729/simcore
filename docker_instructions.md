@@ -33,7 +33,6 @@ $ socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\"
 
 Now set the following environment variables
 
-$ LD_LIBRARY_PATH="/build/glew/lib"
 $ IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
 
 ==== MAYBE NOT NECESSARY?? ====
@@ -43,7 +42,11 @@ $ xhost + $IP
 
 Now we can run docker with X11 forwarding by using some extra flags:
 
+==== NO NEED TO SET ENV ====
 $ docker run --rm -it -e $LD_LIBRARY_PATH -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$IP:0 -v $(PWD):/project/simcore jeffmm/u_simcore_gl ./simcore params.yaml
+============================
+
+$ docker run --rm -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$IP:0 -v $(PWD):/project/simcore jeffmm/u_simcore_gl ./simcore params.yaml
 
 The openGL window should pop up in XQuartz
 

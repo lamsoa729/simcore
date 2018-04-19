@@ -24,13 +24,15 @@ endif
 UNAME_S:=$(shell uname -s)
 
 ifeq ($(UNAME_S),Darwin)
-	INCLUDES = -I/opt/X11/include -I/usr/X11R6/include -I/usr/include -I/usr/local/include -I/usr/local/include/gsl
+	GLXINCS = -I/opt/x11/include -I/usr/X11R6/include -I/usr/include
 	GLXLIBS = -L/opt/X11/lib -L/usr/local/lib -lglfw3 -framework OpenGL -lglew -framework Cocoa -framework IOKit -framework CoreVideo
+	GSLINCS = -I/usr/local/include/gsl 
 	GSLLIBS = -lgsl -lgslcblas
 	FFTLIBS = -lfftw3
 	YAMLINCS = -I/usr/local/include
 	YAMLLIBS = -L/usr/local/lib -lyaml-cpp
-	LIBS = $(GLXLIBS) $(GSLLIBS) $(FFTLIBS) $(YAMLLIBS)
+	#INCLUDES = $(GLXINCS) $(YAMLINCS) $(GSLINCS)
+	#LIBS = $(GLXLIBS) $(GSLLIBS) $(FFTLIBS) $(YAMLLIBS)
 else
 	GSLINCS = -I/build/gsl/include -I/usr/include
 	GSLLIBS = -L/build/gsl/lib -lgsl -lgslcblas -lm
@@ -38,9 +40,18 @@ else
 	GLXLIBS = -L/opt/X11/lib -L/usr/local/lib -L/usr/lib -lGLEW -lGLU -lGL -lglfw3 -lX11-xcb -lX11 -lxcb -lXext -lXdmcp -lXau -lpthread -lstdc++ -Wl,--no-as-needed -ldl
 	YAMLINCS = -I/build/yaml-cpp/include
 	YAMLLIBS = -L/build/yaml-cpp/lib -lyaml-cpp
-	INCLUDES = $(GLXINCS) $(YAMLINCS) $(GSLINCS)
-	LIBS = $(GLXLIBS) $(YAMLLIBS) $(GSLLIBS)
+	#INCLUDES = $(GLXINCS) $(YAMLINCS) $(GSLINCS)
+	#LIBS = $(GLXLIBS) $(YAMLLIBS) $(GSLLIBS)
 endif
+
+ifeq ($(NOGRAPH),true)
+	INCLUDES = $(YAMLINCS) $(GSLINCS)
+	LIBS = $(YAMLLIBS) $(GSLLIBS)
+else
+	INCLUDES = $(YAMLINCS) $(GSLINCS) $(GLXINCS)
+	LIBS = $(YAMLLIBS) $(GSLLIBS) $(GLXLIBS)
+endif
+
 
 print-%: ; @echo $*=$($*)
 
